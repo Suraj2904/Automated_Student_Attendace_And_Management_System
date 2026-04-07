@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Attendance System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Alert Messages -->
+    <div id="alert" class="alert">
+        <span id="alertIcon">✓</span>
+        <span id="alertMessage"></span>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="login-icon">📱</div>
+                <h1>QR Attendance</h1>
+                <p>Admin Login Portal</p>
+            </div>
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username" value="">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" value="">
+            </div>
+
+            <button class="btn btn-primary" onclick="login()">
+                <span id="loginBtnText">Login</span>
+            </button>
+
+            <div class="default-creds">
+                Default: <code>suraj / admin123</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <span style="font-size: 32px;">📱</span>
+                    <h1>QR Attendance System</h1>
+                </div>
+                <button class="btn-logout" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Navigation Menu -->
+            <div class="nav-menu">
+                <div class="nav-card" onclick="showView('dashboard')">
+                    <div class="nav-icon">📊</div>
+                    <h3>Dashboard</h3>
+                </div>
+                <div class="nav-card" onclick="showView('addStudent')">
+                    <div class="nav-icon">👨‍🎓</div>
+                    <h3>Add Student</h3>
+                </div>
+                <div class="nav-card" onclick="showView('addFaculty')">
+                    <div class="nav-icon">👨‍🏫</div>
+                    <h3>Add Faculty</h3>
+                </div>
+                <div class="nav-card" onclick="showView('viewStudents')">
+                    <div class="nav-icon">👥</div>
+                    <h3>View Students</h3>
+                </div>
+                <div class="nav-card" onclick="showView('scanner')">
+                    <div class="nav-icon">📸</div>
+                    <h3>Mark Attendance</h3>
+                </div>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="content-card">
+                <h2>Dashboard Overview</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">👨‍🎓</div>
+                        <div class="stat-number" id="statStudents">0</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">👨‍🏫</div>
+                        <div class="stat-number" id="statFaculty">0</div>
+                        <div class="stat-label">Total Faculty</div>
+                    </div>
+                    <div class="stat-card purple">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-number" id="statAttendance">0</div>
+                        <div class="stat-label">Today Attendance </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 15px; color: #333;">Recent Attendance</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reg No</th>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentAttendanceTable">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <div class="empty-state-icon">📋</div>
+                                    <div>No attendance records yet</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Student View -->
+            <div id="addStudentView" class="content-card hidden">
+                <h2>Add New Student</h2>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label>Student Name *</label>
+                        <input type="text" id="studentName" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Roll Number *</label>
+                        <input type="text" id="studentRoll" placeholder="Enter roll number">
+                    </div>
+                    <div class="form-group">
+                        <label>Course *</label>
+                        <input type="text" id="studentCourse" placeholder="Enter course name">
+                    </div>
+                    <button class="btn btn-primary" onclick="addStudent()">
+                        <span id="addStudentBtnText">Add Student</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add Faculty View -->
+            <div id="addFacultyView" class="content-card hidden">
+                <h2>Add New Faculty</h2>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label>Faculty Name *</label>
+                        <input type="text" id="facultyName" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <input type="text" id="facultyDept" placeholder="Enter department name">
+                    </div>
+                    <button class="btn btn-success" onclick="addFaculty()">
+                        <span id="addFacultyBtnText">Add Faculty</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- View Students View -->
+            <div id="viewStudentsView" class="content-card hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Student List (<span id="studentCount">0</span>)</h2>
+                    <button class="btn btn-success" style="width: auto; padding: 10px 20px;" onclick="showView('viewFaculty')">
+                        View Faculty
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reg No</th>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTable">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <div class="empty-state-icon">👨‍🎓</div>
+                                    <div>No students found</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- View Faculty View -->
+            <div id="viewFacultyView" class="content-card hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Faculty List (<span id="facultyCount">0</span>)</h2>
+                    <button class="btn btn-primary" style="width: auto; padding: 10px 20px;" onclick="showView('viewStudents')">
+                        View Students
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reg No</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="facultyTable">
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    <div class="empty-state-icon">👨‍🏫</div>
+                                    <div>No faculty found</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Attendance View -->
+            <div id="attendanceView" class="content-card hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Attendance Records</h2>
+                    <button class="btn btn-success" style="width: auto; padding: 10px 20px;" onclick="exportAttendance()">
+                        📥 Export to Excel
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reg No</th>
+                                <th>Name</th>
+                                <th>Roll/Dept</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTable">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <div class="empty-state-icon">📋</div>
+                                    <div>No attendance records</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Scanner View -->
+            <div id="scannerView" class="content-card hidden">
+                <div class="scanner-container">
+                    <h2>Mark Attendance</h2>
+                    <!-- Option 1: Manuaal Entry -->
+                    <div class="scanner-box">
+                        <div class="scanner-icon">📸</div>
+                        <p style="color: #666; margin-bottom: 20px;">Enter Registration Number Manually</p>
+                    </div>
+                    <div class="form-group">
+                        <input
+                            type="text"
+                            id="qrInput"
+                            placeholder="Enter STU2025XXXX or FAC2025XXXX"
+                            style="text-align: center; font-size: 16px;"
+                        >
+                    </div>
+                    <button class="btn btn-primary" onclick="markAttendance()">
+                        <span id="markAttendanceBtnText">Mark Attendance Manually</span>
+                    </button>
+                    <div style="margin-top: 30px 0; text-align: center; color: #999;">
+                        <span style="font-size: 20px;">━━━━━━ OR ━━━━━━</span>
+                    </div>
+
+                    <!-- Option 2: QR Scanner -->
+                    <div class="scanner-box" style="background: #e8f4f8">
+                        <div class="scanner-icon">📷</div>
+                        <p style="color: #666; margin-bottom: 20px;">Scan QR with Camera </p>
+                    </div>
+
+                    <button class="btn btn-success" onclick="startQRScanner()" style="width: 100%">
+                        <span id="scannerBtnText">🎥 Start QR Scanner</span>
+                    </button>
+                    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; font-size: 13px;">
+                        <strong>⚠️ Scanner Instructions:</strong><br>
+                        • QR Scanner will open your webcam<br>
+                        • Show QR code to the camera<br>
+                        • Press 'Q' key to close scanner<br>
+                        • Auto-closes after 1 minute
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
